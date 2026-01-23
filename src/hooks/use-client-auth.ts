@@ -1,9 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const useClientAuth = () => {
+const useClientAuthRedirect = () => {
   const { data, isPending } = authClient.useSession();
   const router = useRouter();
 
@@ -14,4 +13,4 @@ const useClientAuth = () => {
   }, [data, isPending, router]);
 };
 
-export default useClientAuth;
+export default useClientAuthRedirect;

@@ -1,6 +1,5 @@
 "use client";
-
-import * as React from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Loader2 } from "lucide-react";
@@ -10,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import useEnsureAuth from "@/hooks/use-ensure-auth";
 
 export function LoginForm() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,9 +29,13 @@ export function LoginForm() {
       {
         email,
         password,
-        callbackURL: "/",
       },
       {
+        onSuccess: () => {
+          router.push("/dashboard");
+          router.refresh();
+          setIsLoading(false);
+        },
         onError: (context) => {
           setIsLoading(false);
           toast.error(
