@@ -58,7 +58,7 @@ export const appRouter = createTRPCRouter({
     .input(
       z.object({
         text: z.string(),
-      })
+      }),
     )
     .query((opts) => {
       return {
@@ -81,7 +81,7 @@ export const appRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-      })
+      }),
     )
     .query(async (opts) => {
       const workflow = await prisma.workflow.findUnique({
@@ -89,14 +89,14 @@ export const appRouter = createTRPCRouter({
           id: opts.input.id,
         },
       });
-      
+
       if (!workflow) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Workflow not found",
         });
       }
-      
+
       return workflow;
     }),
 });
@@ -112,7 +112,7 @@ export const appRouter = createTRPCRouter({
       z.object({
         name: z.string().min(1, "Name is required"),
         description: z.string().optional(),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const workflow = await prisma.workflow.create({
@@ -131,7 +131,7 @@ export const appRouter = createTRPCRouter({
         id: z.string(),
         name: z.string().min(1).optional(),
         description: z.string().optional(),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const workflow = await prisma.workflow.update({
@@ -149,7 +149,7 @@ export const appRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-      })
+      }),
     )
     .mutation(async (opts) => {
       await prisma.workflow.delete({
@@ -170,7 +170,7 @@ In `protectedProcedure`, you can access current user information:
 export const appRouter = createTRPCRouter({
   getMyWorkflows: protectedProcedure.query(async (opts) => {
     const userId = opts.ctx.auth.user.id; // ✅ Get user ID from context
-    
+
     const workflows = await prisma.workflow.findMany({
       where: {
         userId: userId, // Only return current user's data
@@ -246,7 +246,7 @@ export default async function WorkflowDetailPage({
 }) {
   try {
     const workflow = await trpc.getWorkflowById({ id: params.id });
-    
+
     return (
       <div>
         <h1>{workflow.name}</h1>
@@ -354,17 +354,17 @@ import { useState } from "react";
 export function CreateWorkflowForm() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  
+
   const utils = trpc.useUtils(); // ✅ Get utils for cache management
-  
+
   const createWorkflow = trpc.createWorkflow.useMutation({
     onSuccess: (data) => {
       // ✅ Success handling
       toast.success(`Workflow "${data.name}" created successfully!`);
-      
+
       // ✅ Invalidate query cache, automatically refetch
       utils.getWorkflows.invalidate();
-      
+
       // Reset form
       setName("");
       setDescription("");
@@ -377,7 +377,7 @@ export function CreateWorkflowForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     createWorkflow.mutate({
       name,
       description,
@@ -396,10 +396,7 @@ export function CreateWorkflowForm() {
         onChange={(e) => setDescription(e.target.value)}
         placeholder="Description (optional)"
       />
-      <Button 
-        type="submit" 
-        disabled={createWorkflow.isPending}
-      >
+      <Button type="submit" disabled={createWorkflow.isPending}>
         {createWorkflow.isPending ? "Creating..." : "Create Workflow"}
       </Button>
     </form>
@@ -416,22 +413,22 @@ import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-export function UpdateWorkflowButton({ 
-  id, 
-  currentName 
-}: { 
-  id: string; 
+export function UpdateWorkflowButton({
+  id,
+  currentName,
+}: {
+  id: string;
   currentName: string;
 }) {
   const utils = trpc.useUtils();
-  
+
   const updateWorkflow = trpc.updateWorkflow.useMutation({
     onSuccess: (data) => {
       toast.success(`Updated to "${data.name}"`);
-      
+
       // ✅ Method 1: Invalidate entire list
       utils.getWorkflows.invalidate();
-      
+
       // ✅ Method 2: Only update specific query cache (more efficient)
       utils.getWorkflowById.invalidate({ id });
     },
@@ -448,10 +445,7 @@ export function UpdateWorkflowButton({
   };
 
   return (
-    <Button 
-      onClick={handleUpdate}
-      disabled={updateWorkflow.isPending}
-    >
+    <Button onClick={handleUpdate} disabled={updateWorkflow.isPending}>
       {updateWorkflow.isPending ? "Updating..." : "Update"}
     </Button>
   );
@@ -469,7 +463,7 @@ import { Button } from "@/components/ui/button";
 
 export function DeleteWorkflowButton({ id }: { id: string }) {
   const utils = trpc.useUtils();
-  
+
   const deleteWorkflow = trpc.deleteWorkflow.useMutation({
     onSuccess: () => {
       toast.success("Workflow deleted");
@@ -488,7 +482,7 @@ export function DeleteWorkflowButton({ id }: { id: string }) {
   };
 
   return (
-    <Button 
+    <Button
       variant="destructive"
       onClick={handleDelete}
       disabled={deleteWorkflow.isPending}
@@ -537,7 +531,7 @@ export const appRouter = createTRPCRouter({
         return { success: true };
       } catch (error) {
         // ✅ Handle Prisma errors
-        if (error.code === 'P2025') {
+        if (error.code === "P2025") {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "Workflow not found",
@@ -563,7 +557,7 @@ import { Button } from "@/components/ui/button";
 
 export function WorkflowActions({ id }: { id: string }) {
   const utils = trpc.useUtils();
-  
+
   const deleteWorkflow = trpc.deleteWorkflow.useMutation({
     onSuccess: () => {
       toast.success("Workflow deleted successfully");
@@ -581,11 +575,7 @@ export function WorkflowActions({ id }: { id: string }) {
     },
   });
 
-  return (
-    <Button onClick={() => deleteWorkflow.mutate({ id })}>
-      Delete
-    </Button>
-  );
+  return <Button onClick={() => deleteWorkflow.mutate({ id })}>Delete</Button>;
 }
 ```
 
@@ -616,9 +606,7 @@ export function WorkflowList() {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4">
         <p className="text-red-800">Failed to load workflows</p>
-        <button onClick={() => window.location.reload()}>
-          Retry
-        </button>
+        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     );
   }
@@ -645,7 +633,7 @@ import type { TRPCClientErrorLike } from "@trpc/client";
 import type { AppRouter } from "@/trpc/routers/_app";
 
 export function useTRPCErrorHandler(
-  error: TRPCClientErrorLike<AppRouter> | null
+  error: TRPCClientErrorLike<AppRouter> | null,
 ) {
   useEffect(() => {
     if (!error) return;
@@ -673,7 +661,7 @@ export function useTRPCErrorHandler(
 // Usage example
 export function WorkflowList() {
   const { data, isLoading, error } = trpc.getWorkflows.useQuery();
-  
+
   useTRPCErrorHandler(error); // ✅ Automatically handle errors
 
   if (isLoading) return <div>Loading...</div>;
@@ -697,37 +685,37 @@ Update UI immediately before mutation executes for better UX:
 import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 
-export function UpdateWorkflowName({ 
-  id, 
-  currentName 
-}: { 
-  id: string; 
+export function UpdateWorkflowName({
+  id,
+  currentName,
+}: {
+  id: string;
   currentName: string;
 }) {
   const utils = trpc.useUtils();
-  
+
   const updateWorkflow = trpc.updateWorkflow.useMutation({
     // ✅ Update UI before mutation executes
     onMutate: async (newData) => {
       // Cancel ongoing queries
       await utils.getWorkflows.cancel();
-      
+
       // Save current data for rollback
       const previousWorkflows = utils.getWorkflows.getData();
-      
+
       // Optimistically update UI
       utils.getWorkflows.setData(undefined, (old) =>
         old?.map((workflow) =>
           workflow.id === id
             ? { ...workflow, name: newData.name || workflow.name }
-            : workflow
-        )
+            : workflow,
+        ),
       );
-      
+
       // Return context for rollback
       return { previousWorkflows };
     },
-    
+
     onError: (err, newData, context) => {
       // ✅ Rollback on error
       if (context?.previousWorkflows) {
@@ -735,11 +723,11 @@ export function UpdateWorkflowName({
       }
       toast.error("Failed to update workflow");
     },
-    
+
     onSuccess: () => {
       toast.success("Workflow updated");
     },
-    
+
     // ✅ Ensure data sync eventually
     onSettled: () => {
       utils.getWorkflows.invalidate();
@@ -764,23 +752,23 @@ export const appRouter = createTRPCRouter({
       z.object({
         limit: z.number().min(1).max(100).default(10),
         cursor: z.string().optional(),
-      })
+      }),
     )
     .query(async (opts) => {
       const { limit, cursor } = opts.input;
-      
+
       const workflows = await prisma.workflow.findMany({
         take: limit + 1, // Take one more to check if there's a next page
         cursor: cursor ? { id: cursor } : undefined,
         orderBy: { createdAt: "desc" },
       });
-      
+
       let nextCursor: string | undefined = undefined;
       if (workflows.length > limit) {
         const nextItem = workflows.pop();
         nextCursor = nextItem?.id;
       }
-      
+
       return {
         workflows,
         nextCursor,
@@ -797,18 +785,13 @@ import { trpc } from "@/trpc/client";
 import { Button } from "@/components/ui/button";
 
 export function InfiniteWorkflowList() {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = trpc.getWorkflowsPaginated.useInfiniteQuery(
-    { limit: 10 },
-    {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    trpc.getWorkflowsPaginated.useInfiniteQuery(
+      { limit: 10 },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+      },
+    );
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -817,14 +800,11 @@ export function InfiniteWorkflowList() {
       {data?.pages.map((page) =>
         page.workflows.map((workflow) => (
           <div key={workflow.id}>{workflow.name}</div>
-        ))
+        )),
       )}
-      
+
       {hasNextPage && (
-        <Button
-          onClick={() => fetchNextPage()}
-          disabled={isFetchingNextPage}
-        >
+        <Button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
           {isFetchingNextPage ? "Loading more..." : "Load More"}
         </Button>
       )}
@@ -846,7 +826,7 @@ export function WorkflowDetail({ id }: { id: string | null }) {
     { id: id! },
     {
       enabled: !!id, // Conditionally enable
-    }
+    },
   );
 
   if (!id) {
@@ -870,18 +850,15 @@ export function ManualQueryExample() {
     undefined,
     {
       enabled: false, // ✅ Don't auto-execute initially
-    }
+    },
   );
 
   return (
     <div>
-      <Button 
-        onClick={() => refetch()}
-        disabled={isRefetching}
-      >
+      <Button onClick={() => refetch()} disabled={isRefetching}>
         {isRefetching ? "Loading..." : "Fetch Workflows"}
       </Button>
-      
+
       {data && (
         <div>
           {data.map((w) => (
@@ -905,14 +882,14 @@ import { Button } from "@/components/ui/button";
 
 export function WorkflowActions({ id }: { id: string }) {
   const utils = trpc.useUtils();
-  
+
   const updateWorkflow = trpc.updateWorkflow.useMutation({
     onSuccess: () => {
       toast.success("Updated!");
       utils.getWorkflows.invalidate();
     },
   });
-  
+
   const deleteWorkflow = trpc.deleteWorkflow.useMutation({
     onSuccess: () => {
       toast.success("Deleted!");
@@ -928,7 +905,7 @@ export function WorkflowActions({ id }: { id: string }) {
       >
         Update
       </Button>
-      
+
       <Button
         variant="destructive"
         onClick={() => deleteWorkflow.mutate({ id })}
@@ -1004,12 +981,12 @@ const mutation = trpc.createWorkflow.useMutation({
 // ❌ Bad
 onSuccess: () => {
   refetch(); // Only refreshes current component
-}
+};
 
 // ✅ Good
 onSuccess: () => {
   utils.getWorkflows.invalidate(); // Refreshes all components using this query
-}
+};
 ```
 
 ✅ **Precisely invalidate cache**
@@ -1030,7 +1007,7 @@ utils.getWorkflowById.invalidate({ id: "123" });
 // ✅ Prefetch in Server Component
 export default async function Page() {
   void trpc.getWorkflows.prefetch();
-  
+
   return (
     <HydrateClient>
       <ClientComponent />
@@ -1044,7 +1021,7 @@ export default async function Page() {
 ```tsx
 const { data } = trpc.getWorkflowById.useQuery(
   { id },
-  { enabled: !!id } // ✅ Only query when id exists
+  { enabled: !!id }, // ✅ Only query when id exists
 );
 ```
 
@@ -1061,7 +1038,7 @@ export const appRouter = createTRPCRouter({
   createWorkflow: protectedProcedure.input(...).mutation(...),
   updateWorkflow: protectedProcedure.input(...).mutation(...),
   deleteWorkflow: protectedProcedure.input(...).mutation(...),
-  
+
   // User procedures
   getUsers: protectedProcedure.query(...),
   // ...
@@ -1102,11 +1079,11 @@ test("should create workflow", async () => {
   const caller = createCaller({
     // mock context
   });
-  
+
   const result = await caller.createWorkflow({
     name: "Test Workflow",
   });
-  
+
   expect(result.name).toBe("Test Workflow");
 });
 ```
@@ -1151,7 +1128,7 @@ export async function POST(request: Request) {
 
 ### Q: How to debug tRPC errors?
 
-**A:** 
+**A:**
 
 1. Check browser Network tab
 2. Check dev server console
