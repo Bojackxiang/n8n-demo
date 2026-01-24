@@ -11,7 +11,8 @@
     "db:dev:migrate": "npx prisma migrate dev --name update-workflow-model",
     "db:dev:generate": "npx prisma generate",
     "db:studio": "npx prisma studio",
-    "db:reset": "npx prisma migrate reset"
+    "db:reset": "npx prisma migrate reset",
+    "inggest:dev": "pnpm dlx inngest-cli@latest dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
