@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
-    "db:dev:migrate": "npx prisma migrate dev --name better-auth-integration",
+    "db:dev:migrate": "npx prisma migrate dev --name update-workflow-model",
     "db:dev:generate": "npx prisma generate",
     "db:studio": "npx prisma studio",
     "db:reset": "npx prisma migrate reset"
@@ -54,6 +54,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
+    "inngest": "^3.44.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.562.0",
     "next": "15.5.4",
