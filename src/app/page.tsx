@@ -1,29 +1,31 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
-  Zap,
-  Package,
-  TrendingUp,
-  Shield,
   ArrowRight,
-  Check,
-  Workflow,
   BarChart3,
+  Check,
   Clock,
-  Users,
-  Target,
   Heart,
-  Sparkles,
   LayoutDashboard,
+  Package,
+  Shield,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Users,
+  Workflow,
+  Zap,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import useEnsureAuth from "@/hooks/use-ensure-auth";
 
 export default function LandingPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useEnsureAuth();
+  const [_aiResult, _setAiResult] = useState<string>("");
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
@@ -89,36 +91,33 @@ export default function LandingPage() {
             </div>
             {/* CTA Buttons */}
             <div className="flex items-center gap-3">
-              {!isLoading && (
-                <>
-                  {isAuthenticated ? (
-                    <Button
-                      onClick={() => router.push("/dashboard")}
-                      className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_12px_rgba(59,130,246,0.9)]"
-                    >
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Button>
-                  ) : (
-                    <>
-                      <Link href="/login">
-                        <Button
-                          variant="ghost"
-                          className="hidden cursor-pointer text-slate-300 hover:bg-blue-500/10 hover:text-blue-400 md:inline-flex"
-                        >
-                          Sign In
-                        </Button>
-                      </Link>
-                      <Link href="/register">
-                        <Button className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_12px_rgba(59,130,246,0.9)]">
-                          Get Started
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                </>
-              )}
+              {!isLoading &&
+                (isAuthenticated ? (
+                  <Button
+                    onClick={() => router.push("/dashboard")}
+                    className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_12px_rgba(59,130,246,0.9)]"
+                  >
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Button>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <Button
+                        variant="ghost"
+                        className="hidden cursor-pointer text-slate-300 hover:bg-blue-500/10 hover:text-blue-400 md:inline-flex"
+                      >
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/register">
+                      <Button className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_12px_rgba(59,130,246,0.9)]">
+                        Get Started
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </>
+                ))}
             </div>
           </div>
         </div>
@@ -153,39 +152,36 @@ export default function LandingPage() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              {!isLoading && (
-                <>
-                  {isAuthenticated ? (
-                    <Button
-                      size="lg"
-                      onClick={() => router.push("/dashboard")}
-                      className="w-full cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)] sm:w-auto"
-                    >
-                      <LayoutDashboard className="mr-2 h-5 w-5" />
-                      Go to Dashboard
-                    </Button>
-                  ) : (
-                    <>
-                      <Link href="/register">
-                        <Button
-                          size="lg"
-                          className="w-full cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)] sm:w-auto"
-                        >
-                          Start Free Trial
-                          <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
-                      </Link>
+              {!isLoading &&
+                (isAuthenticated ? (
+                  <Button
+                    size="lg"
+                    onClick={() => router.push("/dashboard")}
+                    className="w-full cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)] sm:w-auto"
+                  >
+                    <LayoutDashboard className="mr-2 h-5 w-5" />
+                    Go to Dashboard
+                  </Button>
+                ) : (
+                  <>
+                    <Link href="/register">
                       <Button
                         size="lg"
-                        variant="outline"
-                        className="w-full cursor-pointer border-blue-500/50 bg-blue-500/5 text-blue-400 backdrop-blur-sm transition-all duration-200 hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-300 sm:w-auto"
+                        className="w-full cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)] sm:w-auto"
                       >
-                        Watch Demo
+                        Start Free Trial
+                        <ArrowRight className="ml-2 h-5 w-5" />
                       </Button>
-                    </>
-                  )}
-                </>
-              )}
+                    </Link>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full cursor-pointer border-blue-500/50 bg-blue-500/5 text-blue-400 backdrop-blur-sm transition-all duration-200 hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-300 sm:w-auto"
+                    >
+                      Watch Demo
+                    </Button>
+                  </>
+                ))}
             </div>
 
             {/* Social Proof */}
@@ -619,30 +615,27 @@ export default function LandingPage() {
                 Join thousands of sellers who trust ShopNode to manage their
                 e-commerce operations
               </p>
-              {!isLoading && (
-                <>
-                  {isAuthenticated ? (
+              {!isLoading &&
+                (isAuthenticated ? (
+                  <Button
+                    size="lg"
+                    onClick={() => router.push("/dashboard")}
+                    className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)]"
+                  >
+                    <LayoutDashboard className="mr-2 h-5 w-5" />
+                    Go to Dashboard
+                  </Button>
+                ) : (
+                  <Link href="/register">
                     <Button
                       size="lg"
-                      onClick={() => router.push("/dashboard")}
                       className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)]"
                     >
-                      <LayoutDashboard className="mr-2 h-5 w-5" />
-                      Go to Dashboard
+                      Start Your Free Trial
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
-                  ) : (
-                    <Link href="/register">
-                      <Button
-                        size="lg"
-                        className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)]"
-                      >
-                        Start Your Free Trial
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                    </Link>
-                  )}
-                </>
-              )}
+                  </Link>
+                ))}
             </div>
           </div>
         </div>

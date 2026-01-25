@@ -1,18 +1,8 @@
 "use client";
 
-// import { headers } from "next/headers";
-import { LogoutButton } from "@/components/logout-button";
-import useClientAuthRedirect from "@/hooks/use-client-auth";
-
-import { trpc } from "@/trpc/client";
-
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  QueryClient,
-  useQuery,
-  useQueryClient,
-  queryOptions,
-} from "@tanstack/react-query";
+import { trpc } from "@/trpc/client";
 
 export default function DashboardPage() {
   // const headersList = await headers();
@@ -26,17 +16,34 @@ export default function DashboardPage() {
   // useClientAuthRedirect();
   const { data, isLoading } = trpc.getWorkflows.useQuery();
   const utils = trpc.useUtils();
+  const [aiResult, setAiResult] = useState<string>("");
+
   const createWorkflow = trpc.createWorkflow.useMutation({
     onSuccess: () => {
       utils.getWorkflows.invalidate();
     },
   });
 
-  const handleCreateWorkflow = () => {
+  const testAiMutation = trpc.testAi.useMutation({
+    onSuccess: (data) => {
+      setAiResult(data.text || "No response");
+      console.log("AI Response:", data.text);
+    },
+    onError: (error) => {
+      console.error("AI test failed:", error);
+      setAiResult(`Error: ${error.message}`);
+    },
+  });
+
+  const _handleCreateWorkflow = () => {
     createWorkflow.mutate({
       name: `Workflow ${new Date().toLocaleTimeString()}`,
       description: "This is a sample workflow created from dashboard",
     });
+  };
+
+  const handleTestAi = () => {
+    testAiMutation.mutate();
   };
 
   return (
@@ -46,35 +53,26 @@ export default function DashboardPage() {
           Dashboard
         </h1>
 
-        {/* 显示工作流列表 */}
-        <div className="w-full max-w-2xl space-y-2">
-          {isLoading && <p>Loading workflows...</p>}
-          {data && data.length === 0 && <p>No workflows yet. Create one!</p>}
-          {data?.map((workflow) => (
-            <div
-              key={workflow.id}
-              className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"
-            >
-              <h3 className="font-semibold">{workflow.name}</h3>
-              {workflow.description && (
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  {workflow.description}
-                </p>
-              )}
-              <p className="mt-2 text-xs text-slate-400">
-                Created: {new Date(workflow.createdAt).toLocaleString()}
-              </p>
-            </div>
-          ))}
-        </div>
+        {/* AI 测试区域 */}
+        <div className="w-full max-w-2xl rounded-lg border border-blue-500/30 bg-slate-50 p-4 dark:bg-slate-800">
+          <h2 className="mb-3 font-semibold">Test AI (Gemini)</h2>
+          <Button
+            onClick={handleTestAi}
+            disabled={testAiMutation.isPending}
+            className="mb-3 bg-purple-500 hover:bg-purple-600"
+          >
+            {testAiMutation.isPending ? "Generating..." : "Generate Recipe"}
+          </Button>
 
-        <Button
-          disabled={createWorkflow.isPending}
-          onClick={handleCreateWorkflow}
-        >
-          {createWorkflow.isPending ? "Creating..." : "Create Workflow"}
-        </Button>
-        <LogoutButton />
+          {aiResult && (
+            <div className="mt-3 max-h-96 overflow-y-auto rounded border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
+              <p className="mb-2 text-sm font-semibold text-blue-600">
+                AI Response:
+              </p>
+              <p className="whitespace-pre-wrap text-sm">{aiResult}</p>
+            </div>
+          )}
+        </div>
       </main>
       <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6"></footer>
     </div>

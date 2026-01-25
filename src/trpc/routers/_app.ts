@@ -1,20 +1,42 @@
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText } from "ai";
 import { z } from "zod";
-import { baseProcedure, createTRPCRouter, protectedProcedure } from "../init";
-import prisma from "@/lib/prisma";
 import { inngest } from "@/ingest/client";
+import prisma from "@/lib/prisma";
+import { baseProcedure, createTRPCRouter, protectedProcedure } from "../init";
+import * as Sentry from "@sentry/nextjs";
+
+const modelName = process.env.AI_MODEL || "gemini-2.5-flash";
+const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || "";
+
+const google = createGoogleGenerativeAI({
+  apiKey,
+});
 
 export const appRouter = createTRPCRouter({
-  hello: baseProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      }),
-    )
-    .query((opts) => {
+  // ai
+  testAi: baseProcedure.mutation(async () => {
+    try {
+      const { text } = await generateText({
+        model: google(modelName),
+        prompt: "Write a vegetarian lasagna recipe for 4 people.",
+        // experimental_telemetry: {
+        //   isEnabled: true,
+        //   recordInputs: true,
+        //   recordOutputs: true,
+        // },
+      });
+      Sentry.logger.info("AI test successful");
+      return { text };
+    } catch (error) {
+      console.log("error: ", error);
       return {
-        greeting: `hello ${opts.input.text}`,
+        text: null,
       };
-    }),
+    }
+  }),
+
+  // users
   getUsers: protectedProcedure.query((opt) => {
     const context = opt.ctx;
 
