@@ -26,6 +26,7 @@ import { LogoutButton } from "@/components/logout-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useEnsureAuth from "@/hooks/use-ensure-auth";
 import { usePathname } from "next/navigation";
+import UpdateToProButton from "./upgrate-to-pro-button";
 
 const menuItems = [
   {
@@ -166,6 +167,9 @@ const AppSidebar = () => {
                 </span>
               </div>
             </div>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
+            <UpdateToProButton />
           </SidebarMenuItem>
           <SidebarMenuItem className="group-data-[collapsible=icon]:hidden">
             <LogoutButton />

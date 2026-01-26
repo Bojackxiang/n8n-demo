@@ -341,7 +341,140 @@ export function WorkflowDetail({ id }: { id: string }) {
 }
 ```
 
-### 3. Mutation（修改数据）
+### 3. 使用 Suspense Query（推荐）
+
+`useSuspenseQuery` 是 tRPC 提供的 Suspense 版本查询 hook，它会在数据加载时暂停组件渲染，需要配合 React `Suspense` 和 `ErrorBoundary` 使用。
+
+**优势：**
+
+- ✅ 更简洁的代码，无需手动处理 `isLoading` 状态
+- ✅ 数据保证存在（`data` 不会是 `undefined`）
+- ✅ 更好的类型推断
+- ✅ 符合 React 18+ 的 Concurrent 模式
+
+```tsx
+"use client";
+
+import { trpc } from "@/trpc/client";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+
+// ✅ 使用 useSuspenseQuery
+function WorkflowListContent() {
+  const { data } = trpc.getWorkflows.useSuspenseQuery();
+  // data 保证存在，无需检查 isLoading 或 undefined
+
+  return (
+    <div>
+      {data.map((workflow) => (
+        <div key={workflow.id}>
+          <h2>{workflow.name}</h2>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ✅ 必须用 Suspense 包裹
+export function WorkflowList() {
+  return (
+    <ErrorBoundary fallback={<div>Error loading workflows</div>}>
+      <Suspense fallback={<div>Loading workflows...</div>}>
+        <WorkflowListContent />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+**带参数的 Suspense Query：**
+
+```tsx
+"use client";
+
+import { trpc } from "@/trpc/client";
+import { Suspense } from "react";
+
+function WorkflowDetailContent({ id }: { id: string }) {
+  const { data } = trpc.getWorkflowById.useSuspenseQuery({ id });
+  // ✅ data 保证存在，类型为 Workflow（非 undefined）
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.description}</p>
+    </div>
+  );
+}
+
+export function WorkflowDetail({ id }: { id: string }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WorkflowDetailContent id={id} />
+    </Suspense>
+  );
+}
+```
+
+**useQuery vs useSuspenseQuery 对比：**
+
+```tsx
+// ❌ 使用 useQuery - 需要手动处理加载状态
+function WorkflowList() {
+  const { data, isLoading, error } = trpc.getWorkflows.useQuery();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      {data?.map(
+        (
+          workflow, // ⚠️ data 可能是 undefined
+        ) => (
+          <div key={workflow.id}>{workflow.name}</div>
+        ),
+      )}
+    </div>
+  );
+}
+
+// ✅ 使用 useSuspenseQuery - 代码更简洁
+function WorkflowListContent() {
+  const { data } = trpc.getWorkflows.useSuspenseQuery();
+  // ✅ data 保证存在
+
+  return (
+    <div>
+      {data.map(
+        (
+          workflow, // ✅ 无需 optional chaining
+        ) => (
+          <div key={workflow.id}>{workflow.name}</div>
+        ),
+      )}
+    </div>
+  );
+}
+
+export function WorkflowList() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WorkflowListContent />
+    </Suspense>
+  );
+}
+```
+
+**何时使用：**
+
+- ✅ 新项目或支持 React 18+ 时推荐使用 `useSuspenseQuery`
+- ✅ 需要在组件顶层获取数据时
+- ✅ 数据是必需的，不存在时无法渲染组件
+- ❌ 需要手动控制 refetch 时机时，使用 `useQuery`
+- ❌ 需要在条件判断后才获取数据时，使用 `useQuery` + `enabled`
+
+### 4. Mutation（修改数据）
 
 ```tsx
 "use client";

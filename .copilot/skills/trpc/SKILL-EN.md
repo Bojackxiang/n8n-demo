@@ -341,7 +341,140 @@ export function WorkflowDetail({ id }: { id: string }) {
 }
 ```
 
-### 3. Mutation (Modify Data)
+### 3. Using Suspense Query (Recommended)
+
+`useSuspenseQuery` is a Suspense-enabled query hook provided by tRPC. It suspends component rendering while data is loading and must be used with React `Suspense` and `ErrorBoundary`.
+
+**Advantages:**
+
+- ✅ Cleaner code without manual `isLoading` state handling
+- ✅ Guaranteed data existence (`data` is never `undefined`)
+- ✅ Better type inference
+- ✅ Aligns with React 18+ Concurrent mode
+
+```tsx
+"use client";
+
+import { trpc } from "@/trpc/client";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+
+// ✅ Using useSuspenseQuery
+function WorkflowListContent() {
+  const { data } = trpc.getWorkflows.useSuspenseQuery();
+  // data is guaranteed to exist, no need to check isLoading or undefined
+
+  return (
+    <div>
+      {data.map((workflow) => (
+        <div key={workflow.id}>
+          <h2>{workflow.name}</h2>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ✅ Must wrap with Suspense
+export function WorkflowList() {
+  return (
+    <ErrorBoundary fallback={<div>Error loading workflows</div>}>
+      <Suspense fallback={<div>Loading workflows...</div>}>
+        <WorkflowListContent />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+**Suspense Query with Parameters:**
+
+```tsx
+"use client";
+
+import { trpc } from "@/trpc/client";
+import { Suspense } from "react";
+
+function WorkflowDetailContent({ id }: { id: string }) {
+  const { data } = trpc.getWorkflowById.useSuspenseQuery({ id });
+  // ✅ data is guaranteed to exist, type is Workflow (not undefined)
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.description}</p>
+    </div>
+  );
+}
+
+export function WorkflowDetail({ id }: { id: string }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WorkflowDetailContent id={id} />
+    </Suspense>
+  );
+}
+```
+
+**useQuery vs useSuspenseQuery Comparison:**
+
+```tsx
+// ❌ Using useQuery - manual loading state handling required
+function WorkflowList() {
+  const { data, isLoading, error } = trpc.getWorkflows.useQuery();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      {data?.map(
+        (
+          workflow, // ⚠️ data might be undefined
+        ) => (
+          <div key={workflow.id}>{workflow.name}</div>
+        ),
+      )}
+    </div>
+  );
+}
+
+// ✅ Using useSuspenseQuery - cleaner code
+function WorkflowListContent() {
+  const { data } = trpc.getWorkflows.useSuspenseQuery();
+  // ✅ data is guaranteed to exist
+
+  return (
+    <div>
+      {data.map(
+        (
+          workflow, // ✅ no optional chaining needed
+        ) => (
+          <div key={workflow.id}>{workflow.name}</div>
+        ),
+      )}
+    </div>
+  );
+}
+
+export function WorkflowList() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WorkflowListContent />
+    </Suspense>
+  );
+}
+```
+
+**When to Use:**
+
+- ✅ Recommended for new projects or when supporting React 18+
+- ✅ When fetching data at the top level of a component
+- ✅ When data is required and component cannot render without it
+- ❌ Use `useQuery` when you need manual control over refetch timing
+- ❌ Use `useQuery` + `enabled` when fetching data conditionally
+
+### 4. Mutation (Modify Data)
 
 ```tsx
 "use client";
