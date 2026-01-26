@@ -32,7 +32,7 @@ export function LoginForm() {
       },
       {
         onSuccess: () => {
-          router.push("/dashboard");
+          router.push("/workflows");
           router.refresh();
           setIsLoading(false);
         },

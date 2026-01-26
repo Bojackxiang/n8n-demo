@@ -94,7 +94,7 @@ export default function LandingPage() {
               {!isLoading &&
                 (isAuthenticated ? (
                   <Button
-                    onClick={() => router.push("/dashboard")}
+                    onClick={() => router.push("/workflows")}
                     className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_12px_rgba(59,130,246,0.9)]"
                   >
                     <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -156,7 +156,7 @@ export default function LandingPage() {
                 (isAuthenticated ? (
                   <Button
                     size="lg"
-                    onClick={() => router.push("/dashboard")}
+                    onClick={() => router.push("/workflows")}
                     className="w-full cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)] sm:w-auto"
                   >
                     <LayoutDashboard className="mr-2 h-5 w-5" />
@@ -619,7 +619,7 @@ export default function LandingPage() {
                 (isAuthenticated ? (
                   <Button
                     size="lg"
-                    onClick={() => router.push("/dashboard")}
+                    onClick={() => router.push("/workflows")}
                     className="cursor-pointer bg-linear-to-r from-blue-500 to-cyan-500 px-8 font-medium text-white shadow-lg shadow-blue-500/50 transition-all duration-200 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/70 hover:drop-shadow-[0_0_20px_rgba(59,130,246,1)]"
                   >
                     <LayoutDashboard className="mr-2 h-5 w-5" />

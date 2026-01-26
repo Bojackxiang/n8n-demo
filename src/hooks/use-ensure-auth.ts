@@ -6,6 +6,7 @@ const useEnsureAuth = () => {
   return {
     isAuthenticated: !!data,
     isLoading: isPending,
+    data,
   };
 };
 

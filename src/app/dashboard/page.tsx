@@ -47,34 +47,38 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="font-body grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 sm:p-20">
-      <main className="row-start-2 flex flex-col items-center gap-8 sm:items-start">
-        <h1 className="font-heading text-3xl font-bold text-slate-900 dark:text-white">
-          Dashboard
-        </h1>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="font-heading text-3xl font-bold">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Welcome back! Manage your workflows and test AI features.
+        </p>
+      </div>
 
-        {/* AI 测试区域 */}
-        <div className="w-full max-w-2xl rounded-lg border border-blue-500/30 bg-slate-50 p-4 dark:bg-slate-800">
-          <h2 className="mb-3 font-semibold">Test AI (Gemini)</h2>
-          <Button
-            onClick={handleTestAi}
-            disabled={testAiMutation.isPending}
-            className="mb-3 bg-purple-500 hover:bg-purple-600"
-          >
-            {testAiMutation.isPending ? "Generating..." : "Generate Recipe"}
-          </Button>
+      {/* AI 测试区域 */}
+      <div className="w-full rounded-lg border bg-card p-6 shadow-sm">
+        <h2 className="mb-4 font-heading text-xl font-semibold">
+          Test AI (Gemini)
+        </h2>
+        <Button
+          onClick={handleTestAi}
+          disabled={testAiMutation.isPending}
+          className="mb-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+        >
+          {testAiMutation.isPending ? "Generating..." : "Generate Recipe"}
+        </Button>
 
-          {aiResult && (
-            <div className="mt-3 max-h-96 overflow-y-auto rounded border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
-              <p className="mb-2 text-sm font-semibold text-blue-600">
-                AI Response:
-              </p>
-              <p className="whitespace-pre-wrap text-sm">{aiResult}</p>
-            </div>
-          )}
-        </div>
-      </main>
-      <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6"></footer>
+        {aiResult && (
+          <div className="mt-4 max-h-96 overflow-y-auto rounded-lg border bg-muted/50 p-4">
+            <p className="mb-2 text-sm font-semibold text-primary">
+              AI Response:
+            </p>
+            <p className="whitespace-pre-wrap text-sm text-foreground">
+              {aiResult}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
