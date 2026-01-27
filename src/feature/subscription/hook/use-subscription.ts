@@ -15,3 +15,13 @@ export const useSubscription = () => {
     },
   });
 };
+
+export const useIsProActive = () => {
+  const { data: subscriptionData } = useSubscription();
+
+  return (
+    subscriptionData?.activeSubscriptions?.some(
+      (sub: any) => sub.status === "active",
+    ) ?? false
+  );
+};

@@ -1,4 +1,5 @@
-import WorkflowList from "@/feature/workflows/components/WorkflowList";
+import Workflow from "@/feature/workflows/components/Workflow";
+
 import { requireAuth } from "@/lib/auth-utils";
 import { HydrateClient, trpc } from "@/trpc/server";
 import React, { Suspense } from "react";
@@ -12,7 +13,7 @@ const Page = async () => {
   return (
     <HydrateClient>
       <Suspense fallback={<div>Loading workflows...</div>}>
-        <WorkflowList />
+        <Workflow />
       </Suspense>
     </HydrateClient>
   );
