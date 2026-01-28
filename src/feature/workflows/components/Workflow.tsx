@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useQueryState, parseAsInteger } from "nuqs";
 import { useSuspenseWorkflow } from "../hooks/use-workflow";
 import WorkflowList from "./WorkflowList";
 import {
@@ -16,7 +17,10 @@ import NewWorkflowButton from "./NewWorkflowButton";
 import PageContainer from "@/components/page-container";
 
 const Workflow = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1),
+  );
   const { workflows, pagination } = useSuspenseWorkflow(currentPage);
 
   return (

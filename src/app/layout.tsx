@@ -3,6 +3,7 @@ import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { TRPCProvider } from "@/trpc/client";
 import { Toaster } from "sonner";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-heading",
@@ -31,8 +32,10 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${dmSans.variable} font-body antialiased`}
       >
-        <TRPCProvider>{children}</TRPCProvider>
-        <Toaster />
+        <NuqsAdapter>
+          <TRPCProvider>{children}</TRPCProvider>
+          <Toaster />
+        </NuqsAdapter>
       </body>
     </html>
   );
