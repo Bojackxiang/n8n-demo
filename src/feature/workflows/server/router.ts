@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { z } from "zod";
+import { pagination } from "@/config/workflowlist";
 
 export const workflowsRouters = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -65,12 +66,51 @@ export const workflowsRouters = createTRPCRouter({
       return workflow;
     }),
 
-  getMany: protectedProcedure.query(async ({ ctx }) => {
-    const workflows = await prisma.workflow.findMany({
-      where: {
-        userId: ctx.auth.user.id,
-      },
-    });
-    return workflows;
-  }),
+  getMany: protectedProcedure
+    .input(
+      z
+        .object({
+          page: z.number().int().positive().optional(),
+          pageSize: z.number().int().positive().optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const page = input?.page ?? pagination.default_page;
+      const pageSize = input?.pageSize ?? pagination.default_page_size;
+      const skip = (page - 1) * pageSize;
+
+      // 获取总数
+      const total = await prisma.workflow.count({
+        where: {
+          userId: ctx.auth.user.id,
+        },
+      });
+
+      // 获取分页数据
+      const workflows = await prisma.workflow.findMany({
+        where: {
+          userId: ctx.auth.user.id,
+        },
+        skip,
+        take: pageSize,
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+      const totalPages = Math.ceil(total / pageSize);
+
+      return {
+        workflows,
+        pagination: {
+          total,
+          totalPages,
+          currentPage: page,
+          pageSize,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      };
+    }),
 });

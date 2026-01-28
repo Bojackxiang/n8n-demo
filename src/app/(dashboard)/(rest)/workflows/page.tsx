@@ -1,3 +1,4 @@
+import DashboardLoading from "@/components/dashboard-loading";
 import Workflow from "@/feature/workflows/components/Workflow";
 
 import { requireAuth } from "@/lib/auth-utils";
@@ -12,7 +13,7 @@ const Page = async () => {
 
   return (
     <HydrateClient>
-      <Suspense fallback={<div>Loading workflows...</div>}>
+      <Suspense fallback={<DashboardLoading />}>
         <Workflow />
       </Suspense>
     </HydrateClient>

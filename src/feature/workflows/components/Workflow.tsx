@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useSuspenseWorkflow } from "../hooks/use-workflow";
 import WorkflowList from "./WorkflowList";
 import {
@@ -16,12 +16,15 @@ import NewWorkflowButton from "./NewWorkflowButton";
 import PageContainer from "@/components/page-container";
 
 const Workflow = () => {
-  const workflows = useSuspenseWorkflow();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { workflows, pagination } = useSuspenseWorkflow(currentPage);
 
   return (
     <PageContainer
-      header={<WorkflowsHeader totalCount={workflows.length} />}
-      footer={<WorkflowFooter />}
+      header={<WorkflowsHeader totalCount={pagination.total} />}
+      footer={
+        <WorkflowFooter pagination={pagination} onPageChange={setCurrentPage} />
+      }
     >
       <div className="px-6 py-8">
         <WorkflowList workflows={workflows} />
@@ -48,41 +51,123 @@ const WorkflowsHeader = ({ totalCount }: { totalCount: number }) => {
   );
 };
 
-const WorkflowFooter = () => {
+const WorkflowFooter = ({
+  pagination,
+  onPageChange,
+}: {
+  pagination: {
+    total: number;
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+  onPageChange: (page: number) => void;
+}) => {
+  const {
+    total,
+    totalPages,
+    currentPage,
+    pageSize,
+    hasNextPage,
+    hasPreviousPage,
+  } = pagination;
+
+  // 计算显示范围
+  const startItem = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, total);
+
+  // 生成页码数组
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      // 如果总页数小于等于最大可见页数，显示所有页码
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // 总是显示第一页
+      pages.push(1);
+
+      if (currentPage > 3) {
+        pages.push("ellipsis");
+      }
+
+      // 显示当前页附近的页码
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (currentPage < totalPages - 2) {
+        pages.push("ellipsis");
+      }
+
+      // 总是显示最后一页
+      if (totalPages > 1) {
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
+  if (total === 0) {
+    return null;
+  }
+
   return (
     <div className="border-t border-border/40 bg-background/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex items-center justify-between">
         {/* Left side - showing results info */}
         <p className="text-sm text-muted-foreground">
-          Showing 1-10 of 42 results
+          Showing {startItem}-{endItem} of {total} results
         </p>
 
         {/* Right side - pagination */}
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious
+                onClick={() => hasPreviousPage && onPageChange(currentPage - 1)}
+                className={
+                  !hasPreviousPage
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
             </PaginationItem>
+            {getPageNumbers().map((page, index) =>
+              page === "ellipsis" ? (
+                <PaginationItem key={`ellipsis-${index}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => onPageChange(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ),
+            )}
             <PaginationItem>
-              <PaginationLink href="#" isActive>
-                1
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive={false}>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive={false}>
-                3
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext
+                onClick={() => hasNextPage && onPageChange(currentPage + 1)}
+                className={
+                  !hasNextPage
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>

@@ -1,8 +1,15 @@
 import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
+import { pagination } from "@/config/workflowlist";
 
-export const useSuspenseWorkflow = () => {
-  const data = trpc.workflows.getMany.useSuspenseQuery();
+export const useSuspenseWorkflow = (
+  page: number = pagination.default_page,
+  pageSize: number = pagination.default_page_size,
+) => {
+  const data = trpc.workflows.getMany.useSuspenseQuery({
+    page,
+    pageSize,
+  });
   return data[0];
 };
 
