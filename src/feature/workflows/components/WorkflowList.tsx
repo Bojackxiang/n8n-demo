@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRemoveWorkflow } from "../hooks/use-workflow";
 import { useConfirmAlert } from "@/components/confirm-alert";
+import { useRouter } from "next/navigation";
 
 type Workflow = {
   id: string;
@@ -52,6 +53,7 @@ export default WorkflowList;
 const WorkflowCard = ({ workflow }: { workflow: Workflow }) => {
   const removeWorkflow = useRemoveWorkflow();
   const confirm = useConfirmAlert();
+  const router = useRouter();
 
   const handleDelete = async () => {
     const isConfirmed = await confirm({
@@ -65,6 +67,12 @@ const WorkflowCard = ({ workflow }: { workflow: Workflow }) => {
       await removeWorkflow.mutateAsync({ id: workflow.id });
     }
   };
+
+  const onHandleEdit = (id: string) => {
+    console.log("id: ", id);
+    router.push(`/workflows/${id}`);
+  };
+
   return (
     <Card className="group relative overflow-hidden transition-all hover:shadow-md">
       <div className="p-5">
@@ -94,7 +102,7 @@ const WorkflowCard = ({ workflow }: { workflow: Workflow }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onHandleEdit(workflow.id)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>

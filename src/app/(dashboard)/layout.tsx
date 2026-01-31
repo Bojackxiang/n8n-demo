@@ -13,9 +13,7 @@ const layout = ({ children }: PropsWithChildren) => {
       <AppSidebar />
       <SidebarInset className="bg-accent/20">
         {isMobile && <MobileHeader />}
-        <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-          {children}
-        </div>
+        <div className="flex flex-1 flex-col">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
