@@ -27,3 +27,17 @@ export const useCreateNewWorkflow = () => {
     },
   });
 };
+
+export const useRemoveWorkflow = () => {
+  const utils = trpc.useUtils();
+
+  return trpc.workflows.remove.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Workflow "${data.name}" deleted successfully!`);
+      utils.workflows.getMany.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete workflow");
+    },
+  });
+};

@@ -17,6 +17,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRemoveWorkflow } from "../hooks/use-workflow";
+import { useConfirmAlert } from "@/components/confirm-alert";
 
 type Workflow = {
   id: string;
@@ -48,6 +50,21 @@ const WorkflowList = ({ workflows }: WorkflowListProps) => {
 export default WorkflowList;
 
 const WorkflowCard = ({ workflow }: { workflow: Workflow }) => {
+  const removeWorkflow = useRemoveWorkflow();
+  const confirm = useConfirmAlert();
+
+  const handleDelete = async () => {
+    const isConfirmed = await confirm({
+      title: "Warning",
+      description: `Are you sure you want to delete "${workflow.name}"? This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    });
+
+    if (isConfirmed) {
+      await removeWorkflow.mutateAsync({ id: workflow.id });
+    }
+  };
   return (
     <Card className="group relative overflow-hidden transition-all hover:shadow-md">
       <div className="p-5">
@@ -86,7 +103,10 @@ const WorkflowCard = ({ workflow }: { workflow: Workflow }) => {
                 Duplicate
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={handleDelete}
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>

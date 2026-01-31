@@ -28,6 +28,8 @@ export const protectedProcedure = baseProcedure.use(async (opts) => {
     headers: await headers(),
   });
 
+  console.log("session: ", session);
+
   if (!session) {
     throw new TRPCError({
       code: "UNAUTHORIZED",

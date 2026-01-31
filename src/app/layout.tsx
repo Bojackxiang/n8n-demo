@@ -4,6 +4,7 @@ import "./globals.css";
 import { TRPCProvider } from "@/trpc/client";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { ConfirmAlertProvider } from "@/components/confirm-alert";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-heading",
@@ -33,7 +34,9 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${dmSans.variable} font-body antialiased`}
       >
         <NuqsAdapter>
-          <TRPCProvider>{children}</TRPCProvider>
+          <TRPCProvider>
+            <ConfirmAlertProvider>{children}</ConfirmAlertProvider>
+          </TRPCProvider>
           <Toaster />
         </NuqsAdapter>
       </body>
