@@ -7,7 +7,7 @@ import { BaseNode } from "@/components/react-flow/base-node";
 
 export type PlaceholderNodeProps = Partial<NodeProps> & {
   children?: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
 };
 
 export function PlaceholderNode({ children, onClick }: PlaceholderNodeProps) {

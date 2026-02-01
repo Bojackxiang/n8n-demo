@@ -89,6 +89,9 @@ model Workflow {
 enum NodeType {
   INITIAL // 初始节点
   TRIGGER // 触发器
+  MANUAL_TRIGGER // 手动触发器
+  HTTP_REQUEST // HTTP 请求
+
   ACTION // 动作
   CONDITION // 条件
   WEBHOOK // Webhook

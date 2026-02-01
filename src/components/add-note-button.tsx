@@ -1,18 +1,21 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
-import { DbNull } from "../generated/prisma/internal/prismaNamespace";
+import NodeSelector from "./react-flow/node-selector";
 
 export const AddNodeButton = memo(() => {
+  const [selectorOpen, setSelectorOpen] = useState<boolean>(false);
   return (
-    <Button
-      className="bg-background"
-      variant="outline"
-      size="icon"
-      onClick={() => {}}
-    >
-      <PlusIcon />
-    </Button>
+    <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
+      <Button
+        className="bg-background"
+        variant="outline"
+        size="icon"
+        onClick={() => {}}
+      >
+        <PlusIcon />
+      </Button>
+    </NodeSelector>
   );
 });
 
