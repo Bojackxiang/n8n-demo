@@ -78,8 +78,67 @@ model Workflow {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nodes       Node[]
+  connections Connection[]
 
   @@map("workflow")
+}
+
+enum NodeType {
+  INITIAL // 初始节点
+  TRIGGER // 触发器
+  ACTION // 动作
+  CONDITION // 条件
+  WEBHOOK // Webhook
+  LOOP // 循环
+  MERGE // 合并
+}
+
+model Node {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  name     String
+  type     NodeType
+  position Json
+  data     Json     @default("{}")
+
+  status String  @default("idle") // idle, running, success, failed
+  label  String? // 节点在 UI 上的显示名称
+  icon   String? // 节点图标
+
+  outputConnection Connection[] @relation("ConnectionFromNode")
+  inputConnection  Connection[] @relation("ConnectionToNode")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("node")
+}
+
+model Connection {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  fromNodeId String
+  fromNode   Node   @relation("ConnectionFromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+
+  toNodeId String
+  toNode   Node   @relation("ConnectionToNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  fromOutput String @default("main")
+  toInput    String @default("main")
+
+  label    String? // 边的标签
+  metadata Json    @default("{}") // 其他边的信息
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([fromNodeId, fromOutput, toNodeId, toInput])
+  @@map("connection")
 }

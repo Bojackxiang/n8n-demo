@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { z } from "zod";
 import { pagination } from "@/config/workflowlist";
+import { NodeType } from "@/generated/prisma/enums";
+import { Node, Edge } from "@xyflow/react";
 
 export const workflowsRouters = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -9,6 +11,15 @@ export const workflowsRouters = createTRPCRouter({
       data: {
         name: "TODO",
         userId: ctx.auth.user.id,
+        nodes: {
+          create: {
+            type: NodeType.INITIAL,
+            name: NodeType.INITIAL,
+            position: { x: 0, y: 0 },
+            // data: { label: "+" },
+          },
+        },
+        connections: {},
       },
     });
     return workflow;
@@ -57,13 +68,46 @@ export const workflowsRouters = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const workflow = await prisma.workflow.findFirst({
+      const workflow = await prisma.workflow.findFirstOrThrow({
         where: {
           userId: ctx.auth.user.id,
           id: input.id,
         },
+        include: {
+          nodes: true,
+          connections: true,
+        },
       });
-      return workflow;
+
+      const nodes: Node[] = (workflow?.nodes || []).map((node) => {
+        return {
+          ...node,
+          id: node.id,
+          position: node.position as { x: number; y: number },
+          data: (node.data as Record<string, unknown>) || {},
+          type: node.type,
+        };
+      });
+
+      const connections: Edge[] = (workflow?.connections || []).map(
+        (connection) => {
+          return {
+            ...connection,
+            id: connection.id,
+            source: connection.fromNodeId,
+            target: connection.toNodeId,
+            sourceHandle: connection.fromOutput,
+            targetHandle: connection.toInput,
+          };
+        },
+      );
+
+      return {
+        id: workflow.id,
+        name: workflow.name,
+        nodes,
+        connections,
+      };
     }),
 
   getMany: protectedProcedure

@@ -3,17 +3,58 @@
 import PageContainer from "@/components/page-container";
 import NewWorkflowButton from "@/feature/workflows/components/NewWorkflowButton";
 import { trpc } from "@/trpc/client";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirmAlert } from "@/components/confirm-alert";
 
+import { useState, useCallback, useEffect } from "react";
+import {
+  ReactFlow,
+  applyNodeChanges,
+  applyEdgeChanges,
+  addEdge,
+  Edge,
+  Node,
+  NodeChange,
+  EdgeChange,
+  Connection,
+  Background,
+  BackgroundVariant,
+  Controls,
+  MiniMap,
+  Panel,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import { nodeComponents } from "../../../config/nodeConfig";
+import { AddNodeButton } from "@/components/add-note-button";
+
 const Editor = (params: { workflowId: string }) => {
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) =>
+      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
+    [],
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) =>
+      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
+    [],
+  );
+  const onConnect = useCallback(
+    (params: Connection) =>
+      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+    [],
+  );
+
   const [workflow] = trpc.workflows.getOne.useSuspenseQuery({
     id: params.workflowId,
   });
+
+  const { id, name, nodes: nodeData, connections: connectionData } = workflow;
+
+  const [nodes, setNodes] = useState<Node[]>(nodeData);
+  const [edges, setEdges] = useState<Edge[]>(connectionData as Edge[]);
 
   if (!workflow) {
     return (
@@ -29,15 +70,31 @@ const Editor = (params: { workflowId: string }) => {
   return (
     <PageContainer
       header={<EditorHeader workflow={workflow} />}
-      footer={<Footer />}
+      footer={
+        <Footer
+          onSave={() => {
+            console.log("Save workflow clicked");
+          }}
+        />
+      }
     >
-      <div className="px-6 py-8">
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">ID: {workflow.id}</p>
-          <p className="text-sm text-muted-foreground">
-            Created: {new Date(workflow.createdAt).toLocaleDateString()}
-          </p>
-        </div>
+      <div className="h-full w-full">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeComponents}
+          fitView
+        >
+          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+          <Controls />
+          <MiniMap />
+          <Panel position="top-right">
+            <AddNodeButton />
+          </Panel>
+        </ReactFlow>
       </div>
     </PageContainer>
   );
@@ -182,7 +239,7 @@ const EditorHeader = ({
   );
 };
 
-export const Footer = (onSave?: () => void) => {
+export const Footer = ({ onSave }: { onSave?: () => void }) => {
   return (
     <div className="border-t border-border/40 bg-background/95 px-6 py-4 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex items-center justify-end">

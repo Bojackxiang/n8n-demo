@@ -32,16 +32,16 @@ const PageContainer = ({
   className = "",
 }: PageContainerProps) => {
   return (
-    <>
+    <div className="flex h-screen flex-col">
       {/* Header Section */}
       {header && <div className="flex-shrink-0">{header}</div>}
 
       {/* Content Section */}
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 overflow-hidden">{children}</div>
 
       {/* Footer Section */}
       {footer && <div className="flex-shrink-0">{footer}</div>}
-    </>
+    </div>
   );
 };
 
