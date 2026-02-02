@@ -4,11 +4,12 @@ import { type NodeProps, Position } from "@xyflow/react";
 import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { memo, type ReactNode, useCallback } from "react";
-import { BaseNode, BaseNodeContent } from "./base-node";
-import WorkflowNode from "../workflow-node";
-import { BaseHandle } from "../base-handle";
+import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
+import WorkflowNode from "@/components/workflow-node";
+import { BaseHandle } from "@/components/base-handle";
+import BaseExecutionNode from "@/components/react-flow/base-execution-node";
 
-interface BaseExecutionNodeProps extends NodeProps {
+interface BaseTriggerNode extends NodeProps {
   icon: LucideIcon;
   name: string;
   label: string;
@@ -19,7 +20,7 @@ interface BaseExecutionNodeProps extends NodeProps {
   onDoubleClick?: () => void;
 }
 
-const BaseExecutionNode = memo(
+const BaseTriggerNode = memo(
   ({
     id,
     data,
@@ -31,7 +32,7 @@ const BaseExecutionNode = memo(
     children,
     onSettings,
     onDoubleClick,
-  }: BaseExecutionNodeProps) => {
+  }: BaseTriggerNode) => {
     const onHandleDelete = () => {};
 
     const handleDoubleClick = useCallback(() => {
@@ -47,7 +48,10 @@ const BaseExecutionNode = memo(
         onDelete={onHandleDelete}
         onSettings={onSettings}
       >
-        <BaseNode onDoubleClick={handleDoubleClick}>
+        <BaseNode
+          onDoubleClick={handleDoubleClick}
+          className="rounded-2xl relative group"
+        >
           <BaseNodeContent>
             {typeof Icon === "string" ? (
               <Image src={Icon} alt={`${name}-icon`} width={16} height={16} />
@@ -55,11 +59,6 @@ const BaseExecutionNode = memo(
               <Icon className="size-4 text-muted-foreground" />
             )}
             {children}
-            <BaseHandle
-              id={"target-1"}
-              position={Position.Left}
-              type="target"
-            />
             <BaseHandle
               id={"source-1"}
               position={Position.Right}
@@ -72,6 +71,6 @@ const BaseExecutionNode = memo(
   },
 );
 
-BaseExecutionNode.displayName = "BaseExecutionNode";
+BaseTriggerNode.displayName = "BaseTriggerNode";
 
-export default BaseExecutionNode;
+export default BaseTriggerNode;

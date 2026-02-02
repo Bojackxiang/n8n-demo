@@ -7,6 +7,7 @@ import NodeSelector from "./react-flow/node-selector";
 
 const InitialNode = memo((props: NodeProps) => {
   const [nodeSelectorOpen, setNodeSelectorOpen] = useState<boolean>(false);
+
   return (
     <NodeSelector open={nodeSelectorOpen} onOpenChange={setNodeSelectorOpen}>
       <WorkflowNode name="initial node" description="sample description">
