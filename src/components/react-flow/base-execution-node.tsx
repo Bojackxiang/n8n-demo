@@ -7,6 +7,7 @@ import { memo, type ReactNode, useCallback } from "react";
 import { BaseNode, BaseNodeContent } from "./base-node";
 import WorkflowNode from "../workflow-node";
 import { BaseHandle } from "../base-handle";
+import { NodeStatus, NodeStatusIndicator } from "../node-status-indicator";
 
 interface BaseExecutionNodeProps extends NodeProps {
   icon: LucideIcon;
@@ -14,7 +15,7 @@ interface BaseExecutionNodeProps extends NodeProps {
   label: string;
   description?: string;
   children?: ReactNode;
-
+  status?: NodeStatus;
   onSettings?: () => void;
   onDoubleClick?: () => void;
 }
@@ -27,6 +28,7 @@ const BaseExecutionNode = memo(
     selected,
     icon: Icon,
     label,
+    status = "initial",
     description,
     children,
     onSettings,
@@ -41,33 +43,35 @@ const BaseExecutionNode = memo(
     }, [onDoubleClick]);
 
     return (
-      <WorkflowNode
-        name={name}
-        description={description}
-        onDelete={onHandleDelete}
-        onSettings={onSettings}
-      >
-        <BaseNode onDoubleClick={handleDoubleClick}>
-          <BaseNodeContent>
-            {typeof Icon === "string" ? (
-              <Image src={Icon} alt={`${name}-icon`} width={16} height={16} />
-            ) : (
-              <Icon className="size-4 text-muted-foreground" />
-            )}
-            {children}
-            <BaseHandle
-              id={"target-1"}
-              position={Position.Left}
-              type="target"
-            />
-            <BaseHandle
-              id={"source-1"}
-              position={Position.Right}
-              type="source"
-            />
-          </BaseNodeContent>
-        </BaseNode>
-      </WorkflowNode>
+      <NodeStatusIndicator status={status} variant="border">
+        <WorkflowNode
+          name={name}
+          description={description}
+          onDelete={onHandleDelete}
+          onSettings={onSettings}
+        >
+          <BaseNode onDoubleClick={handleDoubleClick} status={status}>
+            <BaseNodeContent>
+              {typeof Icon === "string" ? (
+                <Image src={Icon} alt={`${name}-icon`} width={16} height={16} />
+              ) : (
+                <Icon className="size-4 text-muted-foreground" />
+              )}
+              {children}
+              <BaseHandle
+                id={"target-1"}
+                position={Position.Left}
+                type="target"
+              />
+              <BaseHandle
+                id={"source-1"}
+                position={Position.Right}
+                type="source"
+              />
+            </BaseNodeContent>
+          </BaseNode>
+        </WorkflowNode>
+      </NodeStatusIndicator>
     );
   },
 );

@@ -29,6 +29,9 @@ import {
 import "@xyflow/react/dist/style.css";
 import { nodeComponents } from "../../../config/nodeConfig";
 import { AddNodeButton } from "@/components/add-note-button";
+import { useSetAtom } from "jotai";
+import { editorAtom } from "../store/atoms";
+import EditorSaveButton from "@/components/editor-save-button";
 
 const Editor = (params: { workflowId: string }) => {
   const onNodesChange = useCallback(
@@ -47,6 +50,8 @@ const Editor = (params: { workflowId: string }) => {
     [],
   );
 
+  const setEditor = useSetAtom(editorAtom);
+
   const [workflow] = trpc.workflows.getOne.useSuspenseQuery({
     id: params.workflowId,
   });
@@ -59,7 +64,7 @@ const Editor = (params: { workflowId: string }) => {
   if (!workflow) {
     return (
       <PageContainer
-        header={<EditorHeader workflow={null} />}
+        header={<EditorHeader workflow={null} workflowId={params.workflowId} />}
         footer={<Footer />}
       >
         <div className="px-6 py-8">Workflow not found</div>
@@ -69,7 +74,9 @@ const Editor = (params: { workflowId: string }) => {
 
   return (
     <PageContainer
-      header={<EditorHeader workflow={workflow} />}
+      header={
+        <EditorHeader workflow={workflow} workflowId={params.workflowId} />
+      }
       footer={
         <Footer
           onSave={() => {
@@ -86,7 +93,10 @@ const Editor = (params: { workflowId: string }) => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeComponents}
+          onInit={setEditor}
           fitView
+          snapGrid={[10, 10]}
+          snapToGrid
         >
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
           <Controls />
@@ -104,8 +114,10 @@ export default Editor;
 
 const EditorHeader = ({
   workflow,
+  workflowId,
 }: {
   workflow: { id: string; name: string } | null;
+  workflowId: string;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(workflow?.name || "");
@@ -233,7 +245,11 @@ const EditorHeader = ({
             </div>
           )}
         </div>
-        <NewWorkflowButton />
+        {workflowId ? (
+          <EditorSaveButton workflowId={workflowId} />
+        ) : (
+          <NewWorkflowButton />
+        )}
       </div>
     </div>
   );

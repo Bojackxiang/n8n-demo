@@ -157,4 +157,88 @@ export const workflowsRouters = createTRPCRouter({
         },
       };
     }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        nodes: z.array(
+          z.object({
+            id: z.string(),
+            type: z.string().nullable(),
+            position: z.object({
+              x: z.number(),
+              y: z.number(),
+            }),
+            data: z.record(z.string(), z.any()).optional(),
+          }),
+        ),
+        edges: z.array(
+          z.object({
+            source: z.string(),
+            target: z.string(),
+            sourceHandle: z.string().nullable(),
+            targetHandle: z.string().nullable(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const workflow = await prisma.workflow.findUniqueOrThrow({
+        where: {
+          userId: ctx.auth.user.id,
+          id: input.id,
+        },
+      });
+
+      return await prisma.$transaction(async (prisma) => {
+        // Delete existing nodes and connections
+        await prisma.node.deleteMany({
+          where: {
+            workflowId: workflow.id,
+          },
+        });
+
+        await prisma.connection.deleteMany({
+          where: {
+            workflowId: workflow.id,
+          },
+        });
+
+        await prisma.node.createMany({
+          data: input.nodes.map((node) => ({
+            id: node.id,
+            workflowId: workflow.id,
+            type: (node.type || NodeType.INITIAL) as NodeType,
+            name: node.type || NodeType.INITIAL,
+            position: node.position,
+            data: node.data || {},
+          })),
+        });
+
+        await prisma.connection.createMany({
+          data: input.edges.map((edge) => ({
+            id: `${edge.source}-${edge.sourceHandle || "default"}-to-${
+              edge.target
+            }-${edge.targetHandle || "default"}`,
+            workflowId: workflow.id,
+            fromNodeId: edge.source,
+            toNodeId: edge.target,
+            fromOutput: edge.sourceHandle || "main",
+            toInput: edge.targetHandle || "main",
+          })),
+        });
+
+        await prisma.workflow.update({
+          where: {
+            id: workflow.id,
+          },
+          data: {
+            updatedAt: new Date(),
+          },
+        });
+
+        return workflow;
+      });
+    }),
 });

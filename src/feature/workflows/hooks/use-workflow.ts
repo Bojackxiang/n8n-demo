@@ -41,3 +41,19 @@ export const useRemoveWorkflow = () => {
     },
   });
 };
+
+export const useUpdateWorkflow = () => {
+  const utils = trpc.useUtils();
+
+  return trpc.workflows.update.useMutation({
+    onSuccess: (data, variables) => {
+      toast.success("Workflow saved successfully!");
+      // 使特定 workflow 的查询缓存失效
+      utils.workflows.getOne.invalidate({ id: variables.id });
+      utils.workflows.getMany.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to save workflow");
+    },
+  });
+};

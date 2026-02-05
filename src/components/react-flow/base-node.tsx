@@ -1,8 +1,27 @@
 import type { ComponentProps } from "react";
+import { XCircle, CheckCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { NodeStatus } from "../node-status-indicator";
 
-export function BaseNode({ className, ...props }: ComponentProps<"div">) {
+interface BaseNodeProps extends ComponentProps<"div"> {
+  status?: NodeStatus;
+}
+
+export function BaseNode({ className, status, ...props }: BaseNodeProps) {
+  const getStatusStyles = () => {
+    switch (status) {
+      case "error":
+        return "border-red-500/70 bg-red-50/50 dark:bg-red-950/20 [&_svg]:text-red-500";
+      case "success":
+        return "border-emerald-500/70 bg-emerald-50/50 dark:bg-emerald-950/20 [&_svg]:text-emerald-500";
+      case "loading":
+        return "[&_svg]:text-blue-500";
+      default:
+        return "";
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -15,11 +34,24 @@ export function BaseNode({ className, ...props }: ComponentProps<"div">) {
         // is selected, using Tailwind's `&` selector.
         "[.react-flow\\_\\_node.selected_&]:border-muted-foreground",
         "[.react-flow\\_\\_node.selected_&]:shadow-lg",
+        getStatusStyles(),
         className,
       )}
       tabIndex={0}
       {...props}
-    />
+    >
+      {props.children}
+      {status === "error" && (
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 shadow-lg shadow-red-500/50">
+          <XCircle className="h-4 w-4 !text-white" strokeWidth={2.5} />
+        </div>
+      )}
+      {status === "success" && (
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50">
+          <CheckCircle className="h-4 w-4 !text-white" strokeWidth={2.5} />
+        </div>
+      )}
+    </div>
   );
 }
 
