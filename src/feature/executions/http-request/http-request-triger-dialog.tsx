@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import z from "zod";
 import {
   Select,
   SelectContent,
@@ -28,15 +29,10 @@ import {
 import { GlobeIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import z from "zod";
 
-const formSchema = z.object({
-  endpoint: z.string().url({ message: "Invalid URL format" }),
-  method: z.enum(["GET", "POST", "PUT", "DELETE"]),
-  body: z.string().optional(),
-});
+import { HttpRequestFormValues, httpRequestSchema } from "./http-request.type";
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof httpRequestSchema>;
 
 interface HttpRequestTriggerDialogProps {
   open: boolean;
@@ -44,7 +40,7 @@ interface HttpRequestTriggerDialogProps {
   onSubmit: (values: FormValues) => void;
   defaultEndpoint?: string;
   defaultMethod?: "GET" | "POST" | "PUT" | "DELETE";
-  defaultBody?: string;
+  defaultValues?: Partial<HttpRequestFormValues>;
 }
 
 const HttpRequestTriggerDialog = memo(
@@ -52,16 +48,14 @@ const HttpRequestTriggerDialog = memo(
     open,
     onClose,
     onSubmit,
-    defaultEndpoint = "",
-    defaultMethod = "GET",
-    defaultBody = "",
+    defaultValues = {},
   }: HttpRequestTriggerDialogProps) => {
     const form = useForm<FormValues>({
-      resolver: zodResolver(formSchema),
+      resolver: zodResolver(httpRequestSchema),
       defaultValues: {
-        endpoint: defaultEndpoint,
-        method: defaultMethod,
-        body: defaultBody,
+        endpoint: defaultValues?.endpoint,
+        method: defaultValues?.method,
+        body: defaultValues?.body,
       },
     });
 
@@ -69,6 +63,16 @@ const HttpRequestTriggerDialog = memo(
       onSubmit(values);
       onClose();
     };
+
+    useEffect(() => {
+      if (open) {
+        form.reset({
+          endpoint: defaultValues?.endpoint,
+          method: defaultValues?.method,
+          body: defaultValues?.body,
+        });
+      }
+    }, [open, defaultValues, form]);
 
     return (
       <Dialog open={open} onOpenChange={onClose}>
