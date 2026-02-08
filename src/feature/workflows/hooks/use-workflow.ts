@@ -1,3 +1,5 @@
+"use client";
+
 import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 import { pagination } from "@/config/workflowlist";
@@ -54,6 +56,18 @@ export const useUpdateWorkflow = () => {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to save workflow");
+    },
+  });
+};
+
+export const useExecuteWorkflow = () => {
+  return trpc.workflows.execute.useMutation({
+    onSuccess: (respData) => {
+      toast.success(`Workflow "${respData.name}" started!`);
+    },
+    onError: (error) => {
+      console.error("error: ", error);
+      toast.error(error.message || "Failed to execute workflow");
     },
   });
 };

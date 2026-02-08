@@ -9,7 +9,7 @@ import { Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useConfirmAlert } from "@/components/confirm-alert";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import {
   ReactFlow,
   applyNodeChanges,
@@ -32,6 +32,8 @@ import { AddNodeButton } from "@/components/add-note-button";
 import { useSetAtom } from "jotai";
 import { editorAtom } from "../store/atoms";
 import EditorSaveButton from "@/components/editor-save-button";
+import { NodeType } from "@/types/node-types";
+import ExecuteWorkFlowButton from "./execute-workflow-button";
 
 const Editor = (params: { workflowId: string }) => {
   const onNodesChange = useCallback(
@@ -72,6 +74,12 @@ const Editor = (params: { workflowId: string }) => {
     );
   }
 
+  console.log({ nodes });
+
+  const hasManualTrigger = useMemo(() => {
+    return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+  }, [nodes]);
+
   return (
     <PageContainer
       header={
@@ -104,6 +112,11 @@ const Editor = (params: { workflowId: string }) => {
           <Panel position="top-right">
             <AddNodeButton />
           </Panel>
+          {hasManualTrigger && (
+            <Panel position="bottom-center">
+              <ExecuteWorkFlowButton workflowId={params.workflowId} />
+            </Panel>
+          )}
         </ReactFlow>
       </div>
     </PageContainer>
